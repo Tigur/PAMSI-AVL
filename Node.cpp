@@ -21,6 +21,24 @@ public:
     int height;
 
 
+
+    void rotate ()
+    {
+
+    }
+
+    int DoBalance ()
+    {
+        this->balance=rightHeight-leftHeight;
+        if (balance<-1||balance>1)
+        {
+            rotate();
+        }
+        return balance;
+    }
+
+
+
     bool insert (Tree* newleaf, Tree* father)
     {
 
