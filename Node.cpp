@@ -14,9 +14,12 @@ private:
 
 
 public:
+    Tree* root=0;
     type key;
-    Tree* leftSon;
-    Tree* rightSon;
+    Tree* leftSon=0;
+    Tree* rightSon=0;
+    Tree* father=0;
+
     int balance=rightHeight-leftHeight;
     int height;
 
@@ -37,10 +40,41 @@ public:
         return balance;
     }
 
-
-
-    bool insert (Tree* newleaf, Tree* father)
+    Tree* findPlace (type key)
     {
+
+    }
+
+    bool insert (Tree* newleaf)
+    {
+        Tree* current=0;
+        Tree* curPar=0;
+
+        type key;
+        newleaf = new Tree;
+        newleaf->key=key;
+        if(!root)
+        {
+            newleaf->root= newleaf;
+        }
+        current = root;
+        while (current!=NULL)
+        {
+            curPar = current;
+
+            if (newleaf->key < current->key)
+                current = current->leftSon;
+            else
+                current = current->rightSon;
+        }
+
+
+        newleaf->father = curPar;
+
+        if(newleaf->key<curPar->key)
+            curPar->leftSon=newleaf;
+        else
+            curPar->rightSon=newleaf;
 
     }
 
