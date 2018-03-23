@@ -27,13 +27,22 @@ public:
     void updateBalance(Tree* startLeaf)
     {
         Tree* current = startLeaf;
-        while (current!=NULL) // keep an eye on this
+        while (current->father!=NULL) // keep an eye on this
         {
-            current->DoBalance(startLeaf);
+            //current->DoBalance(current);
             if(current->key<current->father->key)
-                current->rightHeight+=1;
+            {
+
+                current->father->balance += 1;
+                current->DoBalance(current);
+            }
             else
-                current->leftHeight+=1;
+            {
+                current->father->balance -= 1;
+                current->DoBalance(current);
+            }
+
+            current=current->father;
         }
     }
 
@@ -118,11 +127,11 @@ public:
         {
             LLrot();
         }
-        if(addedLeaf->key > this->key && addedLeaf->key > this->leftSon->key)
+        if(addedLeaf->key > this->key && addedLeaf->key > this->rightSon->key)
         {
             RRrot();
         }
-        if(addedLeaf->key > this->key && addedLeaf->key < this->leftSon->key)
+        if(addedLeaf->key > this->key && addedLeaf->key < this->rightSon->key)
         {
             RLrot();
         }
@@ -139,6 +148,8 @@ public:
         if (balance<-1||balance>1)
         {
             rotate( addedLeaf);
+
+            cout << "robie rotacje od wezła "<< addedLeaf->key<< endl;
         }
         return balance;
     }
@@ -159,6 +170,7 @@ public:
         newleaf->key=key;
         if(!root)
         {
+            root=newleaf;
             newleaf->root= newleaf;
         }
         else {
@@ -180,14 +192,15 @@ public:
 
 
             newleaf->father = curPar;
+            newleaf->root = curPar->root;
 
             if (newleaf->key < curPar->key) {
                 curPar->leftSon = newleaf;
-                updateBalance(curPar);
+                updateBalance(newleaf);
                 // curPar->leftHeight+=1;
             } else {
                 curPar->rightSon = newleaf;
-                updateBalance(curPar);
+                updateBalance(newleaf);
 
                 //curPar->rightHeight+=1;
             }
