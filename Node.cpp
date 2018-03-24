@@ -28,7 +28,7 @@ public:
     void preorderRootUpdate(Tree* Node, Tree* newRoot) // zamiast tego preorder, update root, wstawic to do Rotacji
     {
         cout << Node->key << endl;
-        root=newRoot;
+        Node->root=newRoot;
         if(Node->leftSon)
             preorderRootUpdate(Node->leftSon,newRoot);
         if(Node->rightSon)
@@ -77,8 +77,15 @@ public:
         a->father=b;
         a->rightSon=tmp;
 
+
+        if(b->father && b->father->key>b->key) // Gdy rotacja jest w środku drzewa, potrzeba ustanowić nowego syna dla najwyższego wezła.
+            b->father->leftSon=b;
+        if(b->father && b->father->key<b->key)
+            b->father->rightSon=b;
+
         if(a==root)
         {
+            b->root=b;
             preorderRootUpdate(b,b);
         }
 
@@ -111,8 +118,14 @@ public:
         a->father=b;
         a->leftSon=tmp;
 
+        if(b->father && b->father->key>b->key)
+            b->father->leftSon=b;
+        if(b->father && b->father->key<b->key)
+            b->father->rightSon=b;
+
         if(a==root)
         {
+            b->root=b;
             preorderRootUpdate(b,b);
         }
 
@@ -148,9 +161,14 @@ public:
         a->father=c;
         b->father=c;
 
+        if(c->father && c->father->key>c->key)
+            c->father->leftSon=c;
+        if(c->father && c->father->key<c->key)
+            c->father->rightSon=c;
 
         if(a==root)
         {
+            c->root=c;
             preorderRootUpdate(c,c);
         }
 
@@ -195,9 +213,14 @@ public:
         a->father=c;
         b->father=c;
 
+        if(c->father && c->father->key>c->key)
+            c->father->leftSon=c;
+        if(c->father && c->father->key<c->key)
+            c->father->rightSon=c;
 
         if(a==root)
         {
+            c->root=c;
             preorderRootUpdate(c,c);
 
         }
@@ -276,6 +299,7 @@ public:
         //type key;
         newleaf = new Tree;
         newleaf->key=key;
+
         if(!root)
         {
             root=newleaf;
@@ -283,6 +307,8 @@ public:
             //root->father=this; // zmiana powazna
         }
         else {
+            root=root->root;
+            //newleaf->root=root->root;
             current = root;
             while (current != NULL)
             {
