@@ -15,31 +15,46 @@ private:
 
 public:
     Tree* root=0;
-    type key;
+    type key=NULL;
     Tree* leftSon=0;
     Tree* rightSon=0;
     Tree* father=0;
+    const Tree* OmniTree=0;
 
     int balance=rightHeight-leftHeight;
     int height=0;
 
 
+    void preorderRootUpdate(Tree* Node, Tree* newRoot) // zamiast tego preorder, update root, wstawic to do Rotacji
+    {
+        cout << Node->key << endl;
+        root=newRoot;
+        if(Node->leftSon)
+            preorderRootUpdate(Node->leftSon,newRoot);
+        if(Node->rightSon)
+            preorderRootUpdate(Node->rightSon, newRoot);
+
+
+    }
+
+
+
     void updateBalance(Tree* startLeaf)
     {
         Tree* current = startLeaf;
-        while (current->father!=NULL) // keep an eye on this
+        while (current!=NULL && current->father!=NULL) // keep an eye on this
         {
             //current->DoBalance(current);
             if(current->key<current->father->key)
             {
 
-                current->father->balance += 1;
-                current->DoBalance(current);
+                current->father->balance -= 1;
+                current->father->DoBalance(current);
             }
             else
             {
-                current->father->balance -= 1;
-                current->DoBalance(current);
+                current->father->balance += 1;
+                current->father->DoBalance(startLeaf); // było current father
             }
 
             current=current->father;
@@ -62,6 +77,23 @@ public:
         a->father=b;
         a->rightSon=tmp;
 
+        if(a==root)
+        {
+            preorderRootUpdate(b,b);
+        }
+
+        if(b->balance>0) // Nigdy nie powinien wychodzić ujemny balance dla b w tej rotacji
+        {
+            a->balance=0;
+            b->balance=0;
+
+        }
+        else
+        {
+            a->balance=  1;
+            b->balance= -1;
+        }
+
 
     }
     void LLrot()
@@ -78,6 +110,23 @@ public:
         b->father=a->father;
         a->father=b;
         a->leftSon=tmp;
+
+        if(a==root)
+        {
+            preorderRootUpdate(b,b);
+        }
+
+        if(b->balance<0) // Nigdy nie powinien wychodzić dodatni balance dla b w tej rotacji
+        {
+            a->balance=0;
+            b->balance=0;
+
+        }
+        else
+        {
+            a->balance=-1;
+            b->balance= 1;
+        }
     }
 
     void RLrot()
@@ -98,6 +147,34 @@ public:
         a->rightSon=tmp;
         a->father=c;
         b->father=c;
+
+
+        if(a==root)
+        {
+            preorderRootUpdate(c,c);
+        }
+
+        if(c->balance>0)
+        {
+            a->balance=1;
+            b->balance=0;
+            c->balance=0;
+
+        }
+        if(c->balance<0)
+        {
+            a->balance=0;
+            b->balance=-1;
+            c->balance=0;
+        }
+        if(c->balance==0)
+        {
+            a->balance=0;
+            b->balance=0;
+            c->balance=0;
+        }
+
+
     }
     void LRrot()
     {
@@ -117,25 +194,54 @@ public:
         a->leftSon=tmp;
         a->father=c;
         b->father=c;
+
+
+        if(a==root)
+        {
+            preorderRootUpdate(c,c);
+
+        }
+
+
+        if(c->balance<0)
+        {
+            a->balance=-1;
+            b->balance=0;
+            c->balance=0;
+
+        }
+        if(c->balance>0)
+        {
+            a->balance=0;
+            b->balance=1;
+            c->balance=0;
+        }
+        if(c->balance==0)
+        {
+            a->balance=0;
+            b->balance=0;
+            c->balance=0;
+        }
+
     }
 
     void rotate (Tree* addedLeaf)
     {
 
         // define which rotation, anker to the new cell
-        if(addedLeaf->key < this->key && addedLeaf->key < this->leftSon->key)
+        if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key < this->leftSon->key)
         {
             LLrot();
         }
-        if(addedLeaf->key > this->key && addedLeaf->key > this->rightSon->key)
+        if(addedLeaf->key > this->key && this->rightSon && addedLeaf->key > this->rightSon->key)
         {
             RRrot();
         }
-        if(addedLeaf->key > this->key && addedLeaf->key < this->rightSon->key)
+        if(addedLeaf->key > this->key && this->rightSon && addedLeaf->key < this->rightSon->key)
         {
             RLrot();
         }
-        if(addedLeaf->key < this->key && addedLeaf->key > this->leftSon->key)
+        if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key > this->leftSon->key)
         {
             LRrot();
         }
@@ -144,12 +250,13 @@ public:
 
     int DoBalance (Tree* addedLeaf)
     {
-        this->balance=rightHeight-leftHeight;
+        //this->balance=rightHeight-leftHeight;
         if (balance<-1||balance>1)
         {
+            cout << "robie rotacje od wezła "<< this->key<< endl;
             rotate( addedLeaf);
 
-            cout << "robie rotacje od wezła "<< addedLeaf->key<< endl;
+            //cout << "robie rotacje od wezła "<< this->key<< endl;
         }
         return balance;
     }
@@ -161,6 +268,7 @@ public:
 
     bool insert (type key) // DEL bedzie miało inne update !!
     {
+
         Tree* current=0; // pointer to iterate
         Tree* curPar=0; // supposed parent
 
@@ -172,6 +280,7 @@ public:
         {
             root=newleaf;
             newleaf->root= newleaf;
+            //root->father=this; // zmiana powazna
         }
         else {
             current = root;
