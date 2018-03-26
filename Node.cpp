@@ -36,12 +36,56 @@ public:
 
 
     }
+    void preorder(Tree* Node) // zamiast tego preorder, update root, wstawic to do Rotacji
+    {
+        cout << Node->key << endl;
+
+        if(Node->leftSon) {
+            cout << "LEFT of "<<  Node-> key << endl;
+            preorder(Node->leftSon);
+        }
+        if(Node->rightSon) {
+            cout << "RIGHT of " << Node-> key << endl;
+            preorder(Node->rightSon);
+        }
 
 
+    }
 
-    void updateBalance(Tree* startLeaf)
+
+    void ImpulseSubstract(Tree *startLeaf)
     {
         Tree* current = startLeaf;
+        Tree* toBalance=0; // Wskaźnik pokazujący pierwszy niezbalansowany wierzchołek
+        while (current!=NULL && current->father!=NULL) // keep an eye on this
+        {
+            //current->DoBalance(current);
+            if(current->key<current->father->key)
+            {
+
+                current->father->balance += 1;
+                current->father->DoBalance(&toBalance);
+            }
+            else
+            {
+                current->father->balance -= 1;
+                current->father->DoBalance(&toBalance); // było current father
+            }
+
+            current=current->father;
+        }
+        if(toBalance)
+        {
+            Tree* fatherOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+            ImpulseSubstract(fatherOfRot);// Tu odejmowanie od ojca. rotacji
+        }
+    }
+
+
+    void ImpulseAdd(Tree *startLeaf)
+    {
+        Tree* current = startLeaf;
+        Tree* toBalance=0; // Wskaźnik pokazujący pierwszy niezbalansowany wierzchołek
         while (current!=NULL && current->father!=NULL) // keep an eye on this
         {
             //current->DoBalance(current);
@@ -49,20 +93,25 @@ public:
             {
 
                 current->father->balance -= 1;
-                current->father->DoBalance(current);
+                current->father->DoBalance(&toBalance);
             }
             else
             {
                 current->father->balance += 1;
-                current->father->DoBalance(startLeaf); // było current father
+                current->father->DoBalance(&toBalance); // było current father
             }
 
             current=current->father;
         }
+        if(toBalance)
+        {
+            Tree* fatherOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+            ImpulseSubstract(fatherOfRot);// Tu odejmowanie od ojca. rotacji
+        }
     }
 
 
-    void RRrot()
+    Tree* RRrot()
     {
         Tree *a,*b,*c;// from top to bottom
         Tree *tmp;
@@ -101,9 +150,10 @@ public:
             b->balance= -1;
         }
 
+        return b;
 
     }
-    void LLrot()
+    Tree* LLrot()
     {
         Tree *a,*b,*c;// from top to bottom
         Tree *tmp;
@@ -140,9 +190,11 @@ public:
             a->balance=-1;
             b->balance= 1;
         }
+
+        return b;
     }
 
-    void RLrot()
+    Tree* RLrot()
     {
         Tree *a,*b,*c;// from top to bottom
         Tree *tmp;
@@ -192,9 +244,10 @@ public:
             c->balance=0;
         }
 
+        return c;
 
     }
-    void LRrot()
+    Tree* LRrot()
     {
         Tree *a,*b,*c;// from top to bottom
         Tree *tmp;
@@ -246,40 +299,52 @@ public:
             c->balance=0;
         }
 
+        return c;
+
     }
 
-    void rotate (Tree* addedLeaf)
+    Tree* rotate (Tree* addedLeaf)
     {
-
+        cout << " wchodzę do rotate " << this->key << endl;
         // define which rotation, anker to the new cell
         if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key < this->leftSon->key)
         {
-            LLrot();
+           Tree* fatherOfRot = LLrot();
+           return fatherOfRot;
         }
         if(addedLeaf->key > this->key && this->rightSon && addedLeaf->key > this->rightSon->key)
         {
-            RRrot();
+            Tree* fatherOfRot = RRrot();
+            return fatherOfRot;
         }
         if(addedLeaf->key > this->key && this->rightSon && addedLeaf->key < this->rightSon->key)
         {
-            RLrot();
+            Tree* fatherOfRot = RLrot();
+            return fatherOfRot;
         }
         if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key > this->leftSon->key)
         {
-            LRrot();
+            Tree* fatherOfRot = LRrot();
+            return fatherOfRot;
         }
+
+        return 0;
 
     }
 
-    int DoBalance (Tree* addedLeaf)
+    int DoBalance (Tree** toBalance)
     {
         //this->balance=rightHeight-leftHeight;
         if (balance<-1||balance>1)
         {
-            cout << "robie rotacje od wezła "<< this->key<< endl;
-            rotate( addedLeaf);
-
             //cout << "robie rotacje od wezła "<< this->key<< endl;
+           // rotate( addedLeaf);
+            //cout << "robie rotacje od wezła "<< this->key<< endl;
+            //Obsolite ^
+
+            *toBalance=this;
+
+
         }
         return balance;
     }
@@ -331,11 +396,11 @@ public:
 
             if (newleaf->key < curPar->key) {
                 curPar->leftSon = newleaf;
-                updateBalance(newleaf);
+                ImpulseAdd(newleaf);
                 // curPar->leftHeight+=1;
             } else {
                 curPar->rightSon = newleaf;
-                updateBalance(newleaf);
+                ImpulseAdd(newleaf);
 
                 //curPar->rightHeight+=1;
             }

@@ -12,5 +12,11 @@ Tree <int> T;
     T.insert(41);
     T.insert(11);
     T.insert(24);
-    T.insert(2);
+    T.insert(31);
+    T.insert(12);
+    T.insert(22);
+    T.insert(5);
+    T.insert(6);
+    T.insert(111);
+    T.preorder(T.root);
 }
