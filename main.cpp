@@ -19,12 +19,16 @@ Tree <int> T;
     T.insert(12);
 
     T.insert(22);
-    /*
+
     T.insert(5);
+
     T.insert(6);
+
     T.insert(111);
     T.del(111);
-*/
+    T.del(41);
+    T.del(31);
+
     cout<< "\n\n\n";
 
     T.preorder(T.root);

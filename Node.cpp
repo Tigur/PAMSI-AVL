@@ -378,10 +378,39 @@ public:
     {
         cout << " wchodzę do rotate " << this->key << endl;
         // define which rotation, anker to the new cell
-        if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key < this->leftSon->key)
+        if(this->balance<0 && this->leftSon->balance<=0)
         {
            Tree* fatherOfRot = LLrot();
            return fatherOfRot;
+        }
+        if(this->balance>0 && this->rightSon->balance>=0)
+        {
+            Tree* fatherOfRot = RRrot();
+            return fatherOfRot;
+        }
+        if(this->balance>0 && this->rightSon->balance<0)
+        {
+            Tree* fatherOfRot = RLrot();
+            return fatherOfRot;
+        }
+        if(this->balance<0 && this->leftSon->balance>0)
+        {
+            Tree* fatherOfRot = LRrot();
+            return fatherOfRot;
+        }
+
+        return 0;
+
+    }
+    /*
+    Tree* rotate (Tree* addedLeaf)
+    {
+        cout << " wchodzę do rotate " << this->key << endl;
+        // define which rotation, anker to the new cell
+        if(addedLeaf->key < this->key && this->leftSon && addedLeaf->key < this->leftSon->key)
+        {
+            Tree* fatherOfRot = LLrot();
+            return fatherOfRot;
         }
         if(addedLeaf->key > this->key && this->rightSon && addedLeaf->key > this->rightSon->key)
         {
@@ -402,6 +431,7 @@ public:
         return 0;
 
     }
+     */
 
     Tree* DoBalance (Tree** toBalance)
     {
