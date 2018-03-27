@@ -2,6 +2,7 @@
 // Created by resolution on 15.03.18.
 //
 #include<iostream>
+#include <cstdlib>
 using namespace std;
 
 
@@ -40,23 +41,61 @@ public:
     {
         cout << Node->key << endl;
 
-        if(Node->leftSon) {
-            cout << "LEFT of "<<  Node-> key << endl;
+        if (Node->leftSon) {
+            cout << "LEFT of " << Node->key << endl;
             preorder(Node->leftSon);
         }
-        if(Node->rightSon) {
-            cout << "RIGHT of " << Node-> key << endl;
+        if (Node->rightSon) {
+            cout << "RIGHT of " << Node->key << endl;
             preorder(Node->rightSon);
         }
 
+    }
+
+    void postorder(Tree* Node) // zamiast tego preorder, update root, wstawic to do Rotacji
+    {
+
+
+        if (Node->leftSon) {
+            cout << "LEFT of " << Node->key << endl;
+            postorder(Node->leftSon);
+        }
+        if (Node->rightSon) {
+            cout << "RIGHT of " << Node->key << endl;
+            postorder(Node->rightSon);
+        }
+        cout << Node->key << endl;
+    }
+
+    void inorder(Tree* Node) // zamiast tego preorder, update root, wstawic to do Rotacji
+    {
+
+
+        if (Node->leftSon) {
+            cout << "LEFT of " << Node->key << endl;
+            postorder(Node->leftSon);
+        }
+
+        cout << Node->key << endl;
+
+        if (Node->rightSon) {
+            cout << "RIGHT of " << Node->key << endl;
+            postorder(Node->rightSon);
+        }
 
     }
+
 
 
     void ImpulseSubstract(Tree *startLeaf)
     {
         Tree* current = startLeaf;
         Tree* toBalance=0; // Wskaźnik pokazujący pierwszy niezbalansowany wierzchołek
+
+
+
+
+
         while (current!=NULL && current->father!=NULL) // keep an eye on this
         {
             //current->DoBalance(current);
@@ -86,6 +125,10 @@ public:
     {
         Tree* current = startLeaf;
         Tree* toBalance=0; // Wskaźnik pokazujący pierwszy niezbalansowany wierzchołek
+
+
+
+
         while (current!=NULL && current->father!=NULL) // keep an eye on this
         {
             //current->DoBalance(current);
@@ -98,7 +141,7 @@ public:
             else
             {
                 current->father->balance += 1;
-                current->father->DoBalance(&toBalance); // było current father
+                if(current->father->DoBalance(&toBalance) // było current father
             }
 
             current=current->father;
@@ -332,7 +375,7 @@ public:
 
     }
 
-    int DoBalance (Tree** toBalance)
+    Tree* DoBalance (Tree** toBalance)
     {
         //this->balance=rightHeight-leftHeight;
         if (balance<-1||balance>1)
@@ -346,7 +389,7 @@ public:
 
 
         }
-        return balance;
+        return *toBalance;
     }
 
     Tree* findPlace (type key)
@@ -369,54 +412,151 @@ public:
         {
             root=newleaf;
             newleaf->root= newleaf;
-            //root->father=this; // zmiana powazna
+            return true;
         }
-        else {
-            root=root->root;
-            //newleaf->root=root->root;
-            current = root;
-            while (current != NULL)
+
+
+        root=root->root;
+        //newleaf->root=root->root;
+        current = root;
+        while (current != NULL)
+        {
+            curPar = current;
+
+            if (newleaf->key < current->key)
             {
-                curPar = current;
+                current = current->leftSon;
 
-                if (newleaf->key < current->key)
-                {
-                    current = current->leftSon;
-
-                }
-                else
-                {
-                    current = current->rightSon;
-                }
+            }
+            else
+            {
+                current = current->rightSon;
             }
 
-
-            newleaf->father = curPar;
-            newleaf->root = curPar->root;
-
-            if (newleaf->key < curPar->key) {
-                curPar->leftSon = newleaf;
-                ImpulseAdd(newleaf);
-                // curPar->leftHeight+=1;
-            } else {
-                curPar->rightSon = newleaf;
-                ImpulseAdd(newleaf);
-
-                //curPar->rightHeight+=1;
-            }
         }
+
+
+        newleaf->father = curPar;
+        newleaf->root = curPar->root;
+
+        if (newleaf->key < curPar->key)
+        {
+            curPar->leftSon = newleaf;
+
+            if(curPar->rightSon)
+            {
+                curPar->balance-=1;
+                return true;
+            }
+
+            ImpulseAdd(newleaf);
+        }
+        else
+        {
+            curPar->rightSon = newleaf;
+
+            if(curPar->leftSon)
+            {
+                curPar->balance+=1;
+                return true;
+            }
+
+            ImpulseAdd(newleaf);
+        }
+        return true;
     }
+
 
     bool del (type keyToDel)
     {
 
-    }
-    int countElements(Tree root)
-    {
+
+        Tree* Node = searchFor(keyToDel,root);
+        if(!Node)
+        {
+            cout << "coś nie tak !! " << endl;
+            return false;
+        }
+
+        if(Node->rightSon||Node->leftSon)
+        {
+            cout << "This is not a leaf !! " << endl;
+            return false;
+        }
+
+
+        if(Node->father->rightSon && Node->father->leftSon) // jeżeli wysokość sie nei zmienia
+        {
+            if(Node->key < Node->father->key)
+            {
+
+                Node->father->balance += 1;
+                //Node->father->DoBalance(&toBalance);
+                Node->father->leftSon=0;
+                Node->father=0;
+                delete Node;
+            }
+            else
+            {
+                Node->father->balance -= 1;
+               // Node->father->DoBalance(&toBalance); // było current father
+                Node->father->rightSon=0;
+                Node->father=0;
+                delete Node;
+
+
+            }
+            return true;
+        }
+
+
+        if(Node->father->key>Node->key)
+        {
+            Node->father->leftSon=0;
+        }
+        else
+        {
+            Node->father->rightSon=0;
+        }
+
+
+        ImpulseSubstract(Node);
+        Node->father=0;
+        delete Node;
+
+        return true;
 
     }
-    Tree* searchFor(type key)
+    int GiveHeight(Tree* root)
     {
+        if (!root)
+        {
+            return -1;
+        }
 
+        int leftH= GiveHeight(root->leftSon);
+        int rightH= GiveHeight(root->rightSon);
+
+        return ((rightH+leftH)/2)+ (abs(rightH-leftH)) +1; // return bigger one +1
+    }
+    Tree* searchFor(type key, Tree* Node)
+    {
+        while (Node!=NULL && Node->key!=key)
+        {
+            if(key<Node->key)
+            {
+                Node=Node->leftSon;
+
+            }
+            else
+            {
+                Node=Node->rightSon;
+            }
+            if(!Node)
+                cout << "Don't have any !!!" << endl;
+
+
+        }
+        return Node;
     }
 };
