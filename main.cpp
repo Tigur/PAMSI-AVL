@@ -17,8 +17,9 @@ Tree <int> T;
     T.insert(31);
 
     T.insert(12);
-    /*
+
     T.insert(22);
+    /*
     T.insert(5);
     T.insert(6);
     T.insert(111);
