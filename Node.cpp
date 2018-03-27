@@ -99,25 +99,39 @@ public:
         while (current!=NULL && current->father!=NULL) // keep an eye on this
         {
             //current->DoBalance(current);
-            if(current->key<current->father->key)
+            if(current->key < current->father->key)
             {
 
                 current->father->balance += 1;
-                current->father->DoBalance(&toBalance);
+                if(current->father->DoBalance(&toBalance))
+                {
+                    Tree* SonOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+                    ImpulseSubstract(SonOfRot->father);// Tu odejmowanie od ojca. rotacji
+                    current=SonOfRot;
+                    toBalance=0;
+                }
             }
             else
             {
                 current->father->balance -= 1;
-                current->father->DoBalance(&toBalance); // było current father
+                if(current->father->DoBalance(&toBalance))
+                {
+                    Tree* SonOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+                    ImpulseSubstract(SonOfRot->father);// Tu odejmowanie od ojca. rotacji
+                    current=SonOfRot;
+                    toBalance=0;
+                }
             }
 
             current=current->father;
         }
+        /*
         if(toBalance)
         {
             Tree* fatherOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
             ImpulseSubstract(fatherOfRot);// Tu odejmowanie od ojca. rotacji
         }
+         */
     }
 
 
@@ -136,21 +150,35 @@ public:
             {
 
                 current->father->balance -= 1;
-                current->father->DoBalance(&toBalance);
+                if(current->father->DoBalance(&toBalance))
+                {
+                    Tree* SonOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+                    ImpulseSubstract(SonOfRot->father);// Tu odejmowanie od ojca. rotacji
+                    current=SonOfRot;
+                    toBalance=0;
+                }
             }
             else
             {
                 current->father->balance += 1;
-                if(current->father->DoBalance(&toBalance) // było current father
+                if(current->father->DoBalance(&toBalance))
+                {
+                    Tree* SonOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
+                    ImpulseSubstract(SonOfRot->father);// Tu odejmowanie od ojca. rotacji
+                    current=SonOfRot;
+                    toBalance=0;
+                }
             }
 
             current=current->father;
         }
+        /*
         if(toBalance)
         {
             Tree* fatherOfRot = toBalance->rotate(startLeaf); // Czy zadziałą ?  na szaro, bo 0 ??
             ImpulseSubstract(fatherOfRot);// Tu odejmowanie od ojca. rotacji
         }
+         */
     }
 
 
@@ -193,7 +221,7 @@ public:
             b->balance= -1;
         }
 
-        return b;
+        return a;
 
     }
     Tree* LLrot()
@@ -234,7 +262,7 @@ public:
             b->balance= 1;
         }
 
-        return b;
+        return a;
     }
 
     Tree* RLrot()
@@ -287,7 +315,7 @@ public:
             c->balance=0;
         }
 
-        return c;
+        return a;
 
     }
     Tree* LRrot()
@@ -342,7 +370,7 @@ public:
             c->balance=0;
         }
 
-        return c;
+        return a;
 
     }
 
@@ -387,9 +415,9 @@ public:
 
             *toBalance=this;
 
-
+            return *toBalance;
         }
-        return *toBalance;
+        return 0;
     }
 
     Tree* findPlace (type key)
